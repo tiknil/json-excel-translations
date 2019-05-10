@@ -93,5 +93,33 @@ loop_object("", base_data)
 df = pd.DataFrame(output, columns=(['key'] + langs))
 
 writer = pd.ExcelWriter(output_file, engine='xlsxwriter')
-df.to_excel(writer, index=False)
+df.to_excel(writer, index=False, sheet_name="coffee cApp")
+
+# FORMATTAZIONE EXCEL
+worksheet = writer.sheets["coffee cApp"]
+workbook = writer.book
+defaultFormat = workbook.add_format({'text_wrap': True})
+
+for idx, col in enumerate(df):
+    worksheet.set_column(idx, idx, 50, defaultFormat)
+
+# Format header
+headerFormat = workbook.add_format({'text_wrap': True, 'fg_color': '#DDDDDD', 'border_color': '#333333', 'border': 1, 'align': 'center', 'valign': 'middle', 'bold': True})
+worksheet.set_row(0, 20, headerFormat)
+
+# Format della riga di chiavi
+keyFormat = workbook.add_format({'text_wrap': True, 'fg_color': '#EEEEEE', 'border_color': '#AAAAAA', 'border': 1})
+worksheet.set_column('A:A', 30, keyFormat)
+
+interval = f"B1:{chr(65+len(langs))}{len(output)}"
+missingFormat = workbook.add_format({'text_wrap': True, 'bg_color': '#FFF8DC', 'border_color': '#CCCCCC', 'border': 1})
+worksheet.conditional_format(interval, {
+    'type': 'cell',
+    'criteria': '==',
+    'value': '""',
+    'format': missingFormat
+})
+
+# Blocco l'intestazione e le chiavi
+worksheet.freeze_panes(1,1)
 writer.save()

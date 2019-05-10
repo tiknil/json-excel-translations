@@ -45,7 +45,6 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-print(args)
 
 file = args.input_file
 key_field = args.key_name
@@ -64,6 +63,7 @@ lang_translations = {}
 for lang in langs:
     lang_translations[lang] = {}
 
+
 for index, row in df.iterrows():
     key = row['key']
 
@@ -71,13 +71,17 @@ for index, row in df.iterrows():
 
     for lang in langs:
         lang_trans = lang_translations[lang]
+
         for idx, step in enumerate(steps):
             if step not in lang_trans and idx != len(steps)-1:
                 lang_trans[step] = {}
+                lang_trans = lang_trans[step]
             elif idx != len(steps)-1:
                 lang_trans = lang_trans[step]
+
         if args.empty_flag or row[lang] != '':
-            lang_trans[steps[-1]] = row[lang]
+            if not isinstance(lang_trans, str):
+                lang_trans[steps[-1]] = row[lang].rstrip()
 
 for lang in langs:
     out_file = open(f"{output_dir}/{lang}.json", 'w')
