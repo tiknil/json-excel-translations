@@ -1,3 +1,4 @@
+#!venv/bin/python3
 import json
 import os
 import pandas as pd
@@ -22,6 +23,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "-l",
+    "--locales",
+    dest="locales",
+    help="(Optional) Comma separated list of the locales to consider (es. it,en,de,fr..)",
+    default="*"
+)
+
+parser.add_argument(
     "-o",
     "--output-file",
     dest="output_file",
@@ -30,6 +39,7 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+
 
 def loop_object(base_key, lang_data):
     for key, value in lang_data.items():
@@ -63,9 +73,19 @@ primary = args.primary
 input_dir = args.input_dir.strip(' /')
 output_file = args.output_file.strip(' ')
 
+
 cwd = os.getcwd()
 os.chdir(input_dir)
 files = os.listdir('.')
+
+if args.locales != '*':
+    locales = args.locales.split(',')
+    validFiles = []
+    for locale in locales:
+        if f"{locale}.json" in files:
+            validFiles.append(f"{locale}.json")
+
+    files = validFiles
 
 langs = []
 for file in files:

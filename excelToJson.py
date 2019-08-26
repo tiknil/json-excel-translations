@@ -1,3 +1,4 @@
+#!venv/bin/python3
 import json
 import pandas as pd
 from argparse import ArgumentParser
@@ -8,7 +9,7 @@ parser.add_argument(
     "-k",
     "--key-name",
     dest="key_name",
-    help="Name of the Excel column storing the keys (defualt: 'key') ",
+    help="Name of the Excel column storing the keys (default: 'key') ",
     default="key"
 )
 
