@@ -1,4 +1,4 @@
 output/*
 translations/*
-.idea/*
+.idea
 venv/*
