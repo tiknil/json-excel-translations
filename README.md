@@ -1,6 +1,18 @@
 # Localize Json
 
-Two python script to convert JSON translation files to excel and the other way around.
+Two python script to convert JSON translation files to excel and the other way around. It has been created to work with [I18n](https://github.com/mashpie/i18n-node).
+
+The character used of object nesting in json is the dot `.`
+
+The following json structure:
+```json
+{
+  "app": {
+    "name": "App Name"
+  }
+}
+```
+Produces a key named `app.name`
 
 ## Installation
 
