@@ -43,7 +43,7 @@ args = parser.parse_args()
 
 def loop_object(base_key, lang_data):
     for key, value in lang_data.items():
-        key = f"{base_key}{'.' if base_key is not '' else ''}{key}"
+        key = f"{base_key}{'.' if base_key != '' else ''}{key}"
         if type(value) is dict:
             loop_object(key, value)
 
