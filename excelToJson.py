@@ -1,4 +1,4 @@
-#!venv/bin/python3
+#!/usr/local/bin/python3
 import json
 import pandas as pd
 from argparse import ArgumentParser
@@ -49,7 +49,7 @@ args = parser.parse_args()
 
 file = args.input_file
 key_field = args.key_name
-output_dir = args.output_dir.strip(' /')
+output_dir = args.output_dir
 
 xl = pd.ExcelFile(file)
 df = xl.parse().fillna('')
