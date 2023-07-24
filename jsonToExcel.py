@@ -1,8 +1,9 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 import json
 import os
-import pandas as pd
 from argparse import ArgumentParser
+
+import pandas as pd
 
 parser = ArgumentParser(description='Create an Excel file from a list of json translation files.')
 
@@ -10,7 +11,7 @@ parser.add_argument(
     "-p",
     "--primary",
     dest="primary",
-    help="Primary lang (default 'en')",
+    help="Primary lang (default '%(default)s')",
     default="en"
 )
 
@@ -18,7 +19,7 @@ parser.add_argument(
     "-i",
     "--input-dir",
     dest="input_dir",
-    help="Dir of the json files",
+    help="Dir of the json files (default '%(default)s')",
     default="translations/"
 )
 
@@ -26,7 +27,7 @@ parser.add_argument(
     "-n",
     "--name",
     dest="name",
-    help="Name of the excel sheet",
+    help="Name of the excel sheet (default '%(default)s')",
     default="Translations"
 )
 
@@ -42,39 +43,20 @@ parser.add_argument(
     "-o",
     "--output-file",
     dest="output_file",
-    help="Name of the output file",
+    help="Name of the output file (default '%(default)s')",
     default="output/translations.xlsx"
+)
+
+parser.add_argument(
+    "-k",
+    "--key-name",
+    dest="key_name",
+    help="Name of the Excel column storing the keys (default: '%(default)s') ",
+    default="key"
 )
 
 # Setup variables from arguments
 args = parser.parse_args()
-
-def loop_object(base_key, lang_data):
-    for key, value in lang_data.items():
-        key = f"{base_key}{'.' if base_key != '' else ''}{key}"
-        if type(value) is dict:
-            loop_object(key, value)
-
-        elif type(value) is str:
-            # Controllo la presenza nelle altre lingue
-            key_translations = [value]
-            for lang_code in langs:
-                if lang_code == primary:
-                    continue
-
-                lang_translation = ""
-                lang_object = data_by_lang[lang_code]
-                steps = key.split('.')
-                for step in steps:
-                    if step in lang_object:
-                        lang_object = lang_object[step]
-                    else:
-                        break
-                if type(lang_object) is str:
-                    lang_translation = lang_object
-                key_translations.append(lang_translation)
-
-            output.append([key] + key_translations)
 
 primary = args.primary
 input_dir = args.input_dir
@@ -121,7 +103,7 @@ base_data = data_by_lang[primary]
 # Recursive function to cycle through the json and extract the values in all the languages
 def loop_object(base_key, lang_data):
     for key, value in lang_data.items():
-        key = f"{base_key}{'.' if base_key is not '' else ''}{key}"
+        key = f"{base_key}{'.' if base_key else ''}{key}"
         if type(value) is dict:
             loop_object(key, value)
 
@@ -131,14 +113,18 @@ def loop_object(base_key, lang_data):
             for lang_code in langs:
                 lang_translation = ""
                 lang_object = data_by_lang[lang_code]
-                steps = key.split('.')
-                for step in steps:
-                    if step in lang_object:
-                        lang_object = lang_object[step]
-                    else:
-                        break
-                if type(lang_object) is str:
-                    lang_translation = lang_object
+                # Look up the composite key first
+                if key in lang_object:
+                    lang_translation = lang_object[key]
+                else:
+                    steps = key.split('.')
+                    for step in steps:
+                        if step in lang_object:
+                            lang_object = lang_object[step]
+                        else:
+                            break
+                    if type(lang_object) is str:
+                        lang_translation = lang_object
                 key_translations.append(lang_translation)
 
             output.append([key] + key_translations)
@@ -148,7 +134,7 @@ def loop_object(base_key, lang_data):
 loop_object("", base_data)
 
 # Create the panda dataframe with the data
-df = pd.DataFrame(output, columns=(['key'] + langs))
+df = pd.DataFrame(output, columns=([args.key_name] + langs))
 # Create the excel file
 writer = pd.ExcelWriter(output_file, engine='xlsxwriter')
 df.to_excel(writer, index=False, sheet_name=name)
@@ -173,7 +159,7 @@ keyFormat = workbook.add_format({'text_wrap': True, 'fg_color': '#EEEEEE', 'bord
 worksheet.set_column('A:A', 30, keyFormat)
 
 # Format missing values in the value cells (not header and not key)
-interval = f"B1:{chr(65+len(langs))}{len(output)}"
+interval = f"B1:{chr(65 + len(langs))}{1 + len(output)}"
 missingFormat = workbook.add_format({'text_wrap': True, 'bg_color': '#FFF8DC', 'border_color': '#CCCCCC', 'border': 1})
 worksheet.conditional_format(interval, {
     'type': 'cell',
@@ -183,5 +169,5 @@ worksheet.conditional_format(interval, {
 })
 
 # Lock scrolling on header and keys column
-worksheet.freeze_panes(1,1)
+worksheet.freeze_panes(1, 1)
 writer.save()

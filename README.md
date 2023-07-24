@@ -14,6 +14,13 @@ The following json structure:
 ```
 Produces a key named `app.name`
 
+Flat json files are also supported (note: use `-fk` argument for excelToJson):
+```json
+{
+  "app.name": "App Name"
+}
+```
+
 ## Installation
 
 Clone the project:
@@ -71,7 +78,9 @@ It produces an excel file named translations.xlsx structured as:
 - `-h` Instructions on the script usage 
 - `-o`/`--output-file` where the excel file must be created (default `output/translations.xlsx`)
 - `-i`/`--input-dir` where the translation files are located (default `translations/`)
-- `-p`/`--primary` where the excel file must be created (default `en`)
+- `-k`/`--key-name` name of the excel column containing the keys (default `key`)
+- `-n`/`--name` a name of the excel sheet (default `Translations`)
+- `-p`/`--primary` a translation file name without .json to be used as the primary language (default `en`)
 - `-l`/`--locales` A comma-separated list of the locales to select (default all json files in the input directory)
 
 
@@ -93,4 +102,5 @@ It produces a json file for each locale containing the corresponding translation
 - `-i`/`--input-file` location of the excel input file (default `output/translations.xlsx`)
 - `-e`/`--empty` set this flag to also include keys without a translation (default is to NOT include keys without a translation, assuming there is a fallback mechanism in your app for such strings)
 - `-k`/`--key-name` name of the excel column containing the keys (default `key`)
-- `-id`/`--indent-size` size of the Json indentation (default is `4`)
+- `-is`/`--indent-size` size of the Json indentation (default is `4`)
+- `-fk`/`--flat-keys` set this flag to keep composite keys in output json files which will make them flat key-values objects (default is to split composite keys by .)
